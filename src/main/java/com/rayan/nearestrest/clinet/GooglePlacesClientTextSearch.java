@@ -1,6 +1,6 @@
 package com.rayan.nearestrest.clinet;
 
-import com.rayan.nearestrest.dto.PlacesSearchTextRequest;
+import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesSearchTextResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -10,10 +10,10 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterRestClient(configKey = "google-places-api")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface GooglePlacesClient {
+public interface GooglePlacesClientTextSearch {
 
     @POST
-    PlacesSearchTextResponse searchPlaces(PlacesSearchTextRequest request,
+    PlacesSearchTextResponse searchPlaces(PlacesTextSearchRequest request,
                                           @HeaderParam("X-Goog-Api-Key") String apiKey,
                                           @HeaderParam("X-Goog-FieldMask") String fieldMask);
 }

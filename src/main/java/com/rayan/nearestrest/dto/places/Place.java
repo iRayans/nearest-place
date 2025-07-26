@@ -1,22 +1,26 @@
 package com.rayan.nearestrest.dto.places;
 
+import java.util.List;
+
 public class Place {
 
-    private Double rating;
+    private  Double rating;
     private Integer userRatingCount;
     private String priceLevel;
     private String formattedAddress;
+    private List<String> types;
     private DisplayName displayName;
     private String googleMapsUri;
 
     public Place() {
     }
 
-    public Place(Double rating, Integer userRatingCount, String priceLevel, String formattedAddress,DisplayName displayName, String googleMapsUri) {
+    public Place(Double rating, Integer userRatingCount, String priceLevel, String formattedAddress, List<String> types, DisplayName displayName, String googleMapsUri) {
         this.rating = rating;
         this.userRatingCount = userRatingCount;
         this.priceLevel = priceLevel;
         this.formattedAddress = formattedAddress;
+        this.types = types;
         this.displayName = displayName;
         this.googleMapsUri = googleMapsUri;
     }
@@ -61,6 +65,14 @@ public class Place {
         this.formattedAddress = formattedAddress;
     }
 
+    public List<String> getTypes() {
+        return types;
+    }
+
+    public void setTypes(List<String> types) {
+        this.types = types;
+    }
+
     public DisplayName getDisplayName() {
         return displayName;
     }
@@ -76,6 +88,7 @@ public class Place {
                 ", userRatingCount=" + userRatingCount +
                 ", priceLevel='" + priceLevel + '\'' +
                 ", formattedAddress='" + formattedAddress + '\'' +
+                ", types=" + types +
                 ", displayName=" + displayName +
                 '}';
     }

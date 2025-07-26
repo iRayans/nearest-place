@@ -1,7 +1,10 @@
 package com.rayan.nearestrest.service;
 
-import com.rayan.nearestrest.clinet.GooglePlacesClient;
-import com.rayan.nearestrest.dto.PlacesSearchTextRequest;
+import com.rayan.nearestrest.clinet.GooglePlacesClientTextSearch;
+import com.rayan.nearestrest.dto.textSearch.Center;
+import com.rayan.nearestrest.dto.textSearch.Circle;
+import com.rayan.nearestrest.dto.textSearch.LocationBias;
+import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesSearchTextResponse;
 import com.rayan.nearestrest.dto.places.Place;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,31 +19,31 @@ public class TextQueryService {
     private String apiKey;
     @Inject
     @RestClient
-    GooglePlacesClient googlePlacesClient;
-
+    GooglePlacesClientTextSearch googlePlacesClient;
 
     public PlacesSearchTextResponse searchRestaurants(String query, double lat, double lng) {
-        PlacesSearchTextRequest req = new PlacesSearchTextRequest();
+        PlacesTextSearchRequest req = new PlacesTextSearchRequest();
         req.setTextQuery(query);
         req.setRankPreference("DISTANCE");
         req.setMaxResultCount(20);
 
         // location bias
-        PlacesSearchTextRequest.Center center = new PlacesSearchTextRequest.Center();
-        center.latitude = lat;
-        center.longitude = lng;
+        Center center = new Center();
+        center.setLatitude(lat);
+        center.setLongitude(lng);
 
-        PlacesSearchTextRequest.Circle circle = new PlacesSearchTextRequest.Circle();
-        circle.center = center;
-        circle.radius = 5000.0; // hardcoded for now.
+        Circle circle = new Circle();
+        circle.setCenter(center);
+        circle.setRadius(5000.0); // hardcoded for now.
 
-        PlacesSearchTextRequest.LocationBias bias = new PlacesSearchTextRequest.LocationBias();
-        bias.circle = circle;
+        LocationBias bias = new LocationBias();
+        bias.setCircle(circle);
 
+        req.setMinRating(4.0);
         req.setLocationBias(bias);
 
         // Better to extract them into ENUM class.
-        String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.googleMapsUri";
+        String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri";
 
         PlacesSearchTextResponse res = googlePlacesClient.searchPlaces(req, apiKey, fieldMask);
 

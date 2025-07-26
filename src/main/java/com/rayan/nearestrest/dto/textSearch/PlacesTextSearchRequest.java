@@ -1,17 +1,18 @@
-package com.rayan.nearestrest.dto;
+package com.rayan.nearestrest.dto.textSearch;
 
-public class PlacesSearchTextRequest {
+public class PlacesTextSearchRequest {
     private String textQuery;
     private LocationBias locationBias;
     private Integer maxResultCount;
     private String rankPreference;
-    private Integer minRating;
+    private double minRating;
 
 
-    public PlacesSearchTextRequest() {
+
+    public PlacesTextSearchRequest() {
     }
 
-    public PlacesSearchTextRequest(String textQuery, LocationBias locationBias, Integer maxResultCount, String rankPreference, Integer minRating) {
+    public PlacesTextSearchRequest(String textQuery, LocationBias locationBias, Integer maxResultCount, String rankPreference, double minRating) {
         this.textQuery = textQuery;
         this.locationBias = locationBias;
         this.maxResultCount = maxResultCount;
@@ -19,19 +20,6 @@ public class PlacesSearchTextRequest {
         this.minRating = minRating;
     }
 
-    public static class LocationBias {
-        public Circle circle;
-    }
-
-    public static class Circle {
-        public Center center;
-        public Double radius;
-    }
-
-    public static class Center {
-        public Double latitude;
-        public Double longitude;
-    }
 
     public String getTextQuery() {
         return textQuery;
@@ -65,11 +53,11 @@ public class PlacesSearchTextRequest {
         this.rankPreference = rankPreference;
     }
 
-    public Integer getMinRating() {
+    public double getMinRating() {
         return minRating;
     }
 
-    public void setMinRating(Integer minRating) {
+    public void setMinRating(double minRating) {
         this.minRating = minRating;
     }
 }

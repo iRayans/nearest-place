@@ -19,7 +19,7 @@ public class TextQueryResource {
     public PlacesSearchTextResponse getNearby(
             @QueryParam("lat") double lat,
             @QueryParam("lng") double lng,
-            @QueryParam("query") @DefaultValue("hamburger restaurant") String query
+            @QueryParam("query") @DefaultValue("rice restaurant") String query
     ) {
         return textQueryService.searchRestaurants(query, lat, lng);
     }
