@@ -1,20 +1,32 @@
 package com.rayan.nearestrest.dto;
 
+import com.rayan.nearestrest.dto.places.Place;
+
 import java.util.List;
 
 public class PlacesSearchTextResponse {
-    public List<Place> places;
+    private List<Place> places;
 
-    public static class Place {
-        public DisplayName displayName;
-        public Double rating;
-        public Integer userRatingCount;
-        public String priceLevel;
-        public String formattedAddress;
-        public List<String> types;
 
-        public static class DisplayName {
-            public String text;
-        }
+    public PlacesSearchTextResponse() {
+    }
+
+    public PlacesSearchTextResponse(List<Place> places) {
+        this.places = places;
+    }
+
+    public List<Place> getPlaces() {
+        return places;
+    }
+
+    public void setPlaces(List<Place> places) {
+        this.places = places;
+    }
+
+    @Override
+    public String toString() {
+        return "PlacesSearchTextResponse{" +
+                "places=" + places +
+                '}';
     }
 }

@@ -1,4 +1,4 @@
-package com.rayan.nearestrest;
+package com.rayan.nearestrest.clinet;
 
 import com.rayan.nearestrest.dto.PlacesSearchTextRequest;
 import com.rayan.nearestrest.dto.PlacesSearchTextResponse;

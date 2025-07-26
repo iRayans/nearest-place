@@ -1,6 +1,6 @@
 package com.rayan.nearestrest.resource;
 
-import com.rayan.nearestrest.TextQueryService;
+import com.rayan.nearestrest.service.TextQueryService;
 import com.rayan.nearestrest.dto.PlacesSearchTextResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
@@ -19,7 +19,7 @@ public class TextQueryResource {
     public PlacesSearchTextResponse getNearby(
             @QueryParam("lat") double lat,
             @QueryParam("lng") double lng,
-            @QueryParam("query") @DefaultValue("burger restaurants") String query
+            @QueryParam("query") @DefaultValue("hamburger restaurant") String query
     ) {
         return textQueryService.searchRestaurants(query, lat, lng);
     }
