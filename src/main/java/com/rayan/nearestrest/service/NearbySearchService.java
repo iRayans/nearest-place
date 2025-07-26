@@ -1,10 +1,10 @@
 package com.rayan.nearestrest.service;
 
-import com.rayan.nearestrest.clinet.GooglePlacesClientTextSearch;
+import com.rayan.nearestrest.clinet.GooglePlacesClientNearbySearch;
+import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
+import com.rayan.nearestrest.dto.nearbySearch.PlacesNearbySearchRequest;
 import com.rayan.nearestrest.dto.textSearch.Center;
 import com.rayan.nearestrest.dto.textSearch.Circle;
-import com.rayan.nearestrest.dto.textSearch.LocationBias;
-import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
 import com.rayan.nearestrest.dto.places.Place;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,21 +13,24 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @ApplicationScoped
-public class TextQueryService {
+public class NearbySearchService {
 
     @ConfigProperty(name = "api.key")
     private String apiKey;
+
     @Inject
     @RestClient
-    GooglePlacesClientTextSearch googlePlacesClient;
+    GooglePlacesClientNearbySearch nearbyPlacesClient;
 
-    public PlacesTextSearchResponse searchRestaurants(String query, double lat, double lng) {
-        PlacesTextSearchRequest req = new PlacesTextSearchRequest();
-        req.setTextQuery(query);
-        req.setRankPreference("DISTANCE");
+
+    public PlacesTextSearchResponse searchRestaurants(double lat, double lng) {
+        PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
+        req.setRankPreference("POPULARITY");
         req.setMaxResultCount(20);
+        String[] includedTypes = {"hamburger_restaurant","american_restaurant"};
+        req.setIncludedTypes(includedTypes);
 
-        // location bias
+        // location
         Center center = new Center();
         center.setLatitude(lat);
         center.setLongitude(lng);
@@ -36,16 +39,14 @@ public class TextQueryService {
         circle.setCenter(center);
         circle.setRadius(5000.0); // hardcoded for now.
 
-        LocationBias bias = new LocationBias();
-        bias.setCircle(circle);
+        LocationRestriction locationRestriction = new LocationRestriction();
+        locationRestriction.setCircle(circle);
 
-        req.setMinRating(4.0);
-        req.setLocationBias(bias);
-
+        req.setLocationRestriction(locationRestriction);
         // Better to extract them into ENUM class.
         String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri";
-
-        PlacesTextSearchResponse res = googlePlacesClient.searchPlaces(req, apiKey, fieldMask);
+        System.out.println(req);
+        PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
 
         for (Place place : res.getPlaces()) {
             System.out.println(place);

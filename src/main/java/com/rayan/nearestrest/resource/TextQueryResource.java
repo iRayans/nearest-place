@@ -1,7 +1,8 @@
 package com.rayan.nearestrest.resource;
 
+import com.rayan.nearestrest.service.NearbySearchService;
 import com.rayan.nearestrest.service.TextQueryService;
-import com.rayan.nearestrest.dto.PlacesSearchTextResponse;
+import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -13,14 +14,26 @@ public class TextQueryResource {
 
     @Inject
     TextQueryService textQueryService;
+    @Inject
+    NearbySearchService nearbySearchService;
 
     @GET
-    @Path("/search")
-    public PlacesSearchTextResponse getNearby(
+    @Path("/textSearch")
+    public PlacesTextSearchResponse getTextSearch(
             @QueryParam("lat") double lat,
             @QueryParam("lng") double lng,
             @QueryParam("query") @DefaultValue("rice restaurant") String query
     ) {
         return textQueryService.searchRestaurants(query, lat, lng);
+    }
+
+
+    @GET
+    @Path("/nearbySearch")
+    public PlacesTextSearchResponse getNearbySearch(
+            @QueryParam("lat") double lat,
+            @QueryParam("lng") double lng
+    ) {
+        return nearbySearchService.searchRestaurants(lat, lng);
     }
 }

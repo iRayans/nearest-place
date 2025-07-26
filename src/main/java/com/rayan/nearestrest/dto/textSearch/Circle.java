@@ -27,4 +27,12 @@ public class Circle {
     public void setRadius(Double radius) {
         this.radius = radius;
     }
+
+    @Override
+    public String toString() {
+        return "Circle{" +
+                "center=" + center +
+                ", radius=" + radius +
+                '}';
+    }
 }

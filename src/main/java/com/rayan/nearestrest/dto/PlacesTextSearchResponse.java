@@ -4,14 +4,14 @@ import com.rayan.nearestrest.dto.places.Place;
 
 import java.util.List;
 
-public class PlacesSearchTextResponse {
+public class PlacesTextSearchResponse {
     private List<Place> places;
 
 
-    public PlacesSearchTextResponse() {
+    public PlacesTextSearchResponse() {
     }
 
-    public PlacesSearchTextResponse(List<Place> places) {
+    public PlacesTextSearchResponse(List<Place> places) {
         this.places = places;
     }
 
