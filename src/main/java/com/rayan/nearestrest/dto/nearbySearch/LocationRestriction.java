@@ -1,6 +1,6 @@
 package com.rayan.nearestrest.dto.nearbySearch;
 
-import com.rayan.nearestrest.dto.textSearch.Circle;
+import com.rayan.nearestrest.dto.Circle;
 
 public class LocationRestriction {
     private Circle circle;

@@ -1,5 +1,7 @@
 package com.rayan.nearestrest.dto.textSearch;
 
+import com.rayan.nearestrest.dto.Circle;
+
 public class LocationBias {
     private Circle circle;
 

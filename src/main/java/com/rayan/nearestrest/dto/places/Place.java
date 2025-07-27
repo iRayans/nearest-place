@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Place {
 
-    private  Double rating;
+    private Double rating;
     private Integer userRatingCount;
     private String priceLevel;
     private String formattedAddress;

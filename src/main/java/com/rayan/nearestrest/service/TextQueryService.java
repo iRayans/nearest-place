@@ -1,8 +1,8 @@
 package com.rayan.nearestrest.service;
 
 import com.rayan.nearestrest.clinet.GooglePlacesClientTextSearch;
-import com.rayan.nearestrest.dto.textSearch.Center;
-import com.rayan.nearestrest.dto.textSearch.Circle;
+import com.rayan.nearestrest.dto.Center;
+import com.rayan.nearestrest.dto.Circle;
 import com.rayan.nearestrest.dto.textSearch.LocationBias;
 import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesTextSearchResponse;

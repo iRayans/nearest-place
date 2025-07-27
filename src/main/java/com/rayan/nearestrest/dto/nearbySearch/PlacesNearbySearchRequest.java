@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 public class PlacesNearbySearchRequest {
     private String[] includedTypes;
+    private String[] excludedTypes;
     private Integer maxResultCount;
     private String rankPreference;
     private LocationRestriction locationRestriction;
@@ -14,8 +15,9 @@ public class PlacesNearbySearchRequest {
     public PlacesNearbySearchRequest() {
     }
 
-    public PlacesNearbySearchRequest(String[] includedTypes, Integer maxResultCount, String rankPreference, LocationRestriction locationRestriction) {
+    public PlacesNearbySearchRequest(String[] includedTypes, String[] excludedTypes, Integer maxResultCount, String rankPreference, LocationRestriction locationRestriction) {
         this.includedTypes = includedTypes;
+        this.excludedTypes = excludedTypes;
         this.maxResultCount = maxResultCount;
         this.rankPreference = rankPreference;
         this.locationRestriction = locationRestriction;
@@ -54,10 +56,19 @@ public class PlacesNearbySearchRequest {
         this.locationRestriction = locationRestriction;
     }
 
+    public String[] getExcludedTypes() {
+        return excludedTypes;
+    }
+
+    public void setExcludedTypes(String[] excludedTypes) {
+        this.excludedTypes = excludedTypes;
+    }
+
     @Override
     public String toString() {
-        return "PlacesnearbySearchRequest{" +
+        return "PlacesNearbySearchRequest{" +
                 "includedTypes=" + Arrays.toString(includedTypes) +
+                ", excludedTypes=" + Arrays.toString(excludedTypes) +
                 ", maxResultCount=" + maxResultCount +
                 ", rankPreference='" + rankPreference + '\'' +
                 ", locationRestriction=" + locationRestriction +
