@@ -1,12 +1,14 @@
 package com.rayan.nearestrest.dto.places;
 
+import com.rayan.nearestrest.enumeration.PriceLevel;
+
 import java.util.List;
 
 public class Place {
 
     private Double rating;
     private Integer userRatingCount;
-    private String priceLevel;
+    private PriceLevel priceLevel;
     private String formattedAddress;
     private List<String> types;
     private DisplayName displayName;
@@ -15,7 +17,7 @@ public class Place {
     public Place() {
     }
 
-    public Place(Double rating, Integer userRatingCount, String priceLevel, String formattedAddress, List<String> types, DisplayName displayName, String googleMapsUri) {
+    public Place(Double rating, Integer userRatingCount, PriceLevel priceLevel, String formattedAddress, List<String> types, DisplayName displayName, String googleMapsUri) {
         this.rating = rating;
         this.userRatingCount = userRatingCount;
         this.priceLevel = priceLevel;
@@ -49,11 +51,11 @@ public class Place {
         this.userRatingCount = userRatingCount;
     }
 
-    public String getPriceLevel() {
+    public PriceLevel getPriceLevel() {
         return priceLevel;
     }
 
-    public void setPriceLevel(String priceLevel) {
+    public void setPriceLevel(PriceLevel priceLevel) {
         this.priceLevel = priceLevel;
     }
 
