@@ -1,5 +1,6 @@
 package com.rayan.nearestrest.resource;
 
+import com.rayan.nearestrest.dto.RestaurantResult;
 import com.rayan.nearestrest.service.NearbySearchService;
 import com.rayan.nearestrest.service.TextQueryService;
 import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
@@ -30,7 +31,7 @@ public class TextQueryResource {
 
     @GET
     @Path("/nearbySearch")
-    public PlacesTextSearchResponse getNearbySearch(
+    public RestaurantResult getNearbySearch(
             @QueryParam("lat") double lat,
             @QueryParam("lng") double lng
     ) {

@@ -1,12 +1,11 @@
 package com.rayan.nearestrest.service;
 
 import com.rayan.nearestrest.clinet.GooglePlacesClientNearbySearch;
+import com.rayan.nearestrest.dto.*;
 import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
 import com.rayan.nearestrest.dto.nearbySearch.PlacesNearbySearchRequest;
-import com.rayan.nearestrest.dto.Center;
-import com.rayan.nearestrest.dto.Circle;
-import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
 import com.rayan.nearestrest.dto.places.Place;
+import com.rayan.nearestrest.enumeration.PriceLevel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -26,8 +25,7 @@ public class NearbySearchService {
     @RestClient
     GooglePlacesClientNearbySearch nearbyPlacesClient;
 
-
-    public PlacesTextSearchResponse searchRestaurants(double lat, double lng) {
+    public RestaurantResult searchRestaurants(double lat, double lng) {
         PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
         req.setRankPreference("POPULARITY");
         req.setMaxResultCount(20);
@@ -66,7 +64,18 @@ public class NearbySearchService {
                     counter.getAndIncrement();
                 });
 
-        return res;
+        // Extract it to a method or create a mapper.
+        List<RestaurantResultDTO> resultDTOs = topFive.stream()
+                .map(place -> new RestaurantResultDTO(
+                        place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown",
+                        place.getRating() != null ? place.getRating() : 0.0,
+                        place.getUserRatingCount() != null ? place.getUserRatingCount() : 0,
+                        place.getGoogleMapsUri(),
+                        parsePriceLevel(place.getPriceLevel().name())
+                ))
+                .collect(Collectors.toList());
+
+        return new RestaurantResult(resultDTOs);
     }
 
 
@@ -103,5 +112,14 @@ public class NearbySearchService {
                 )
                 .collect(Collectors.toList());
     }
+
+    private PriceLevel parsePriceLevel(String value) {
+        try {
+            return value != null ? PriceLevel.valueOf(value) : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
 
 }
