@@ -15,9 +15,14 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.rayan.nearestrest.enumeration.PriceLevel.*;
+
 @ApplicationScoped
 public class NearbySearchService {
 
+    private final String[]  includedTypes = {"hamburger_restaurant","american_restaurant"};
+    private final String[] excludedTypes = {"pizza_restaurant","middle_eastern_restaurant","seafood_restaurant"};
+    private final String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
     @ConfigProperty(name = "api.key")
     private String apiKey;
 
@@ -26,33 +31,10 @@ public class NearbySearchService {
     GooglePlacesClientNearbySearch nearbyPlacesClient;
 
     public RestaurantResult searchRestaurants(double lat, double lng) {
-        PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
-        req.setRankPreference("POPULARITY");
-        req.setMaxResultCount(20);
-        String[] includedTypes = {"hamburger_restaurant","american_restaurant"};
-        String[] excludedTypes = {"pizza_restaurant","middle_eastern_restaurant","seafood_restaurant"};
-
-        req.setIncludedTypes(includedTypes);
-        req.setExcludedTypes(excludedTypes);
-        // location
-        Center center = new Center();
-        center.setLatitude(lat);
-        center.setLongitude(lng);
-
-        Circle circle = new Circle();
-        circle.setCenter(center);
-        circle.setRadius(5000.0); // hardcoded for now.
-
-        LocationRestriction locationRestriction = new LocationRestriction();
-        locationRestriction.setCircle(circle);
-
-        req.setLocationRestriction(locationRestriction);
-        // Better to extract them into ENUM class.
-        String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
+        PlacesNearbySearchRequest req = constructRequest(lat, lng);
         PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
-        List<Place> places = res.getPlaces();
-        List<Place> excludedPlaces = excludeChainRestaurants(places);
-        List<Place> topFive = getTop10Places(excludedPlaces);
+        List<Place> places = excludeChainRestaurants(res.getPlaces());
+        List<Place> topFive = getTop10Places(places);
 
         System.out.println("======================================================");
         AtomicInteger counter = new AtomicInteger(1);
@@ -60,21 +42,11 @@ public class NearbySearchService {
                 .forEach(place -> {
                     String name = place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown";
                     Double rating = place.getRating();
-                    System.out.println(counter + "-" +"Name: " + name + ", Rating: " + rating + " People Rated Count: " + place.getUserRatingCount());
+                    System.out.println(counter + "-" +"Name: " + name + ", Rating: " + rating + " People Rated Count: " + place.getUserRatingCount() + "PriceLevel: " + place.getPriceLevel());
                     counter.getAndIncrement();
                 });
 
-        // Extract it to a method or create a mapper.
-        List<RestaurantResultDTO> resultDTOs = topFive.stream()
-                .map(place -> new RestaurantResultDTO(
-                        place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown",
-                        place.getRating() != null ? place.getRating() : 0.0,
-                        place.getUserRatingCount() != null ? place.getUserRatingCount() : 0,
-                        place.getGoogleMapsUri(),
-                        parsePriceLevel(place.getPriceLevel().name())
-                ))
-                .collect(Collectors.toList());
-
+        List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
         return new RestaurantResult(resultDTOs);
     }
 
@@ -92,14 +64,13 @@ public class NearbySearchService {
                 .collect(Collectors.toList());
     }
 
-
-    public double calculateScore(Place place) {
+    private double calculateScore(Place place) {
         double rating = place.getRating();
         int count = place.getUserRatingCount();
         return (count > 0) ? rating * Math.log10(count) : 0;
     }
 
-    public List<Place> excludeChainRestaurants(List<Place> places) {
+    private List<Place> excludeChainRestaurants(List<Place> places) {
         List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King","Kudu","Shawarma House","Hardee's","Burgerizzr");
 
         return places.stream()
@@ -115,11 +86,46 @@ public class NearbySearchService {
 
     private PriceLevel parsePriceLevel(String value) {
         try {
-            return value != null ? PriceLevel.valueOf(value) : null;
+            return value != null ? valueOf(value) : null;
         } catch (IllegalArgumentException e) {
             return null;
         }
     }
 
+    // Mapper
+    private  List<RestaurantResultDTO> parseRestaurants(List<Place> topFive) {
+        return topFive.stream()
+                .map(place -> new RestaurantResultDTO(
+                        place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown",
+                        place.getRating() != null ? place.getRating() : 0.0,
+                        place.getUserRatingCount() != null ? place.getUserRatingCount() : 0,
+                        place.getGoogleMapsUri(),
+                        parsePriceLevel(place.getPriceLevel() != null ? place.getPriceLevel().name() : PRICE_LEVEL_UNKNOWN.name() )
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private PlacesNearbySearchRequest constructRequest(double lat, double lng) {
+        PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
+        req.setRankPreference("POPULARITY");
+        req.setMaxResultCount(20);
+
+        req.setIncludedTypes(includedTypes);
+        req.setExcludedTypes(excludedTypes);
+        // location
+        Center center = new Center();
+        center.setLatitude(lat);
+        center.setLongitude(lng);
+
+        Circle circle = new Circle();
+        circle.setCenter(center);
+        circle.setRadius(5000.0); // hardcoded for now.
+
+        LocationRestriction locationRestriction = new LocationRestriction();
+        locationRestriction.setCircle(circle);
+
+        req.setLocationRestriction(locationRestriction);
+        return req;
+    }
 
 }
