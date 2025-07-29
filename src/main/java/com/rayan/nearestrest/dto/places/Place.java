@@ -1,6 +1,6 @@
 package com.rayan.nearestrest.dto.places;
 
-import com.rayan.nearestrest.enumeration.PriceLevel;
+import com.rayan.nearestrest.core.enumeration.PriceLevel;
 
 import java.util.List;
 

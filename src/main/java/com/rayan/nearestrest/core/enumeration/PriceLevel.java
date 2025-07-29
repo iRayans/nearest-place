@@ -1,4 +1,4 @@
-package com.rayan.nearestrest.enumeration;
+package com.rayan.nearestrest.core.enumeration;
 
 public enum PriceLevel {
     PRICE_LEVEL_INEXPENSIVE,

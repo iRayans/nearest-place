@@ -4,7 +4,7 @@ import com.rayan.nearestrest.clinet.GooglePlacesClientTextSearch;
 import com.rayan.nearestrest.dto.Center;
 import com.rayan.nearestrest.dto.Circle;
 import com.rayan.nearestrest.dto.textSearch.LocationBias;
-import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
+import com.rayan.nearestrest.dto.request.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
 import com.rayan.nearestrest.dto.places.Place;
 import jakarta.enterprise.context.ApplicationScoped;

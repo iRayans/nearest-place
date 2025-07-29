@@ -1,11 +1,12 @@
 package com.rayan.nearestrest.service;
 
 import com.rayan.nearestrest.clinet.GooglePlacesClientNearbySearch;
+import com.rayan.nearestrest.core.exception.AppServerException;
 import com.rayan.nearestrest.dto.*;
 import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
-import com.rayan.nearestrest.dto.nearbySearch.PlacesNearbySearchRequest;
+import com.rayan.nearestrest.dto.request.PlacesNearbySearchRequest;
 import com.rayan.nearestrest.dto.places.Place;
-import com.rayan.nearestrest.enumeration.PriceLevel;
+import com.rayan.nearestrest.core.enumeration.PriceLevel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.rayan.nearestrest.enumeration.PriceLevel.*;
+import static com.rayan.nearestrest.core.enumeration.PriceLevel.PRICE_LEVEL_UNKNOWN;
 
 @ApplicationScoped
 public class NearbySearchService {
@@ -34,6 +35,9 @@ public class NearbySearchService {
         PlacesNearbySearchRequest req = constructRequest(lat, lng);
         PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
         List<Place> places = excludeChainRestaurants(res.getPlaces());
+        if (places == null) {
+            throw new AppServerException("Search returned no results");
+        }
         List<Place> topFive = getTop10Places(places);
 
         System.out.println("======================================================");
@@ -84,13 +88,6 @@ public class NearbySearchService {
                 .collect(Collectors.toList());
     }
 
-    private PriceLevel parsePriceLevel(String value) {
-        try {
-            return value != null ? valueOf(value) : null;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
 
     // Mapper
     private  List<RestaurantResultDTO> parseRestaurants(List<Place> topFive) {
@@ -100,7 +97,7 @@ public class NearbySearchService {
                         place.getRating() != null ? place.getRating() : 0.0,
                         place.getUserRatingCount() != null ? place.getUserRatingCount() : 0,
                         place.getGoogleMapsUri(),
-                        parsePriceLevel(place.getPriceLevel() != null ? place.getPriceLevel().name() : PRICE_LEVEL_UNKNOWN.name() )
+                        place.getPriceLevel() != null ? place.getPriceLevel() : PRICE_LEVEL_UNKNOWN
                 ))
                 .collect(Collectors.toList());
     }

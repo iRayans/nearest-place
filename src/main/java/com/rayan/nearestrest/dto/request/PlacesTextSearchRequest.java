@@ -1,4 +1,6 @@
-package com.rayan.nearestrest.dto.textSearch;
+package com.rayan.nearestrest.dto.request;
+
+import com.rayan.nearestrest.dto.textSearch.LocationBias;
 
 public class PlacesTextSearchRequest {
     private String textQuery;

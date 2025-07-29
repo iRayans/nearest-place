@@ -1,5 +1,9 @@
-package com.rayan.nearestrest.dto.nearbySearch;
+package com.rayan.nearestrest.dto.request;
 
+
+import com.rayan.nearestrest.dto.Center;
+import com.rayan.nearestrest.dto.Circle;
+import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
 
 import java.util.Arrays;
 
@@ -9,6 +13,8 @@ public class PlacesNearbySearchRequest {
     private Integer maxResultCount;
     private String rankPreference;
     private LocationRestriction locationRestriction;
+    private Circle circle;
+    private Center center;
 
 
 

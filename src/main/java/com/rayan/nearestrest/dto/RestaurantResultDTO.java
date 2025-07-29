@@ -1,7 +1,7 @@
 package com.rayan.nearestrest.dto;
 
 
-import com.rayan.nearestrest.enumeration.PriceLevel;
+import com.rayan.nearestrest.core.enumeration.PriceLevel;
 
 public class RestaurantResultDTO {
     private String restaurantName;

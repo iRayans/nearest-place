@@ -1,6 +1,6 @@
 package com.rayan.nearestrest.clinet;
 
-import com.rayan.nearestrest.dto.textSearch.PlacesTextSearchRequest;
+import com.rayan.nearestrest.dto.request.PlacesTextSearchRequest;
 import com.rayan.nearestrest.dto.PlacesTextSearchResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
