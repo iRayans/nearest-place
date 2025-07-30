@@ -1,19 +1,18 @@
 package com.rayan.nearestrest.service;
 
 import com.rayan.nearestrest.clinet.GooglePlacesClientNearbySearch;
-import com.rayan.nearestrest.core.exception.AppServerException;
+import com.rayan.nearestrest.core.exception.ResultNotFoundException;
 import com.rayan.nearestrest.dto.*;
 import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
 import com.rayan.nearestrest.dto.request.PlacesNearbySearchRequest;
 import com.rayan.nearestrest.dto.places.Place;
-import com.rayan.nearestrest.core.enumeration.PriceLevel;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.rayan.nearestrest.core.enumeration.PriceLevel.PRICE_LEVEL_UNKNOWN;
@@ -21,8 +20,12 @@ import static com.rayan.nearestrest.core.enumeration.PriceLevel.PRICE_LEVEL_UNKN
 @ApplicationScoped
 public class NearbySearchService {
 
-    private final String[]  includedTypes = {"hamburger_restaurant","american_restaurant"};
-    private final String[] excludedTypes = {"pizza_restaurant","middle_eastern_restaurant","seafood_restaurant"};
+    private final String[] includedTypesHamburger = {"hamburger_restaurant", "american_restaurant"};
+    private final String[] includedTypesCoffee = {"coffee_shop", "cafe"};
+    private final String[] includedTypesIndianFood = {"indian_restaurant"};
+    private final String[] includedTypesDefault = {""};
+    private final String[] excludedTypesHamburger = {"pizza_restaurant", "middle_eastern_restaurant", "seafood_restaurant"};
+    private final String[] excludedTypesCoffee = {"tea_house"};
     private final String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
     @ConfigProperty(name = "api.key")
     private String apiKey;
@@ -31,26 +34,24 @@ public class NearbySearchService {
     @RestClient
     GooglePlacesClientNearbySearch nearbyPlacesClient;
 
-    public RestaurantResult searchRestaurants(double lat, double lng) {
-        PlacesNearbySearchRequest req = constructRequest(lat, lng);
+    public RestaurantResult searchRestaurants(double lat, double lng, String type) {
+        PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
         PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
-        List<Place> places = excludeChainRestaurants(res.getPlaces());
-        if (places == null) {
-            throw new AppServerException("Search returned no results");
+        if (res.getPlaces() == null) {
+            throw new ResultNotFoundException("No results were returned from Google Places API");
+        }
+
+        List<Place> places = new ArrayList<>();
+        if(type.contains("hamburger")) {
+            places = excludeChainRestaurants(res.getPlaces());
+        } else if(type.contains("coffee")) {
+            places = excludeCoffees(res.getPlaces());
+        } else {
+            places = res.getPlaces();
         }
         List<Place> topFive = getTop10Places(places);
-
-        System.out.println("======================================================");
-        AtomicInteger counter = new AtomicInteger(1);
-        topFive.stream()
-                .forEach(place -> {
-                    String name = place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown";
-                    Double rating = place.getRating();
-                    System.out.println(counter + "-" +"Name: " + name + ", Rating: " + rating + " People Rated Count: " + place.getUserRatingCount() + "PriceLevel: " + place.getPriceLevel());
-                    counter.getAndIncrement();
-                });
-
         List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
+        System.out.println(resultDTOs + "=============");
         return new RestaurantResult(resultDTOs);
     }
 
@@ -75,7 +76,7 @@ public class NearbySearchService {
     }
 
     private List<Place> excludeChainRestaurants(List<Place> places) {
-        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King","Kudu","Shawarma House","Hardee's","Burgerizzr");
+        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King", "Kudu", "Shawarma House", "Hardee's", "Burgerizzr","وهمي","Hamburgini");
 
         return places.stream()
                 .filter(place ->
@@ -88,9 +89,22 @@ public class NearbySearchService {
                 .collect(Collectors.toList());
     }
 
+    private List<Place> excludeCoffees(List<Place> places) {
+        List<String> chainRestaurants = List.of("dunkin", "Half Million","Starbucks","ABYAT");
+
+        return places.stream()
+                .filter(place ->
+                        place.getDisplayName() != null &&
+                                place.getDisplayName().getText() != null &&
+                                chainRestaurants.stream().noneMatch(name ->
+                                        place.getDisplayName().getText().toLowerCase().contains(name.toLowerCase())
+                                )
+                )
+                .collect(Collectors.toList());
+    }
 
     // Mapper
-    private  List<RestaurantResultDTO> parseRestaurants(List<Place> topFive) {
+    private List<RestaurantResultDTO> parseRestaurants(List<Place> topFive) {
         return topFive.stream()
                 .map(place -> new RestaurantResultDTO(
                         place.getDisplayName() != null ? place.getDisplayName().getText() : "Unknown",
@@ -102,13 +116,14 @@ public class NearbySearchService {
                 .collect(Collectors.toList());
     }
 
-    private PlacesNearbySearchRequest constructRequest(double lat, double lng) {
+    private PlacesNearbySearchRequest constructRequest(double lat, double lng, String type) {
         PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
         req.setRankPreference("POPULARITY");
         req.setMaxResultCount(20);
 
-        req.setIncludedTypes(includedTypes);
-        req.setExcludedTypes(excludedTypes);
+        req.setIncludedTypes(setRestaurantType(type));
+        req.setExcludedTypes(setExcludedTypes(type));
+
         // location
         Center center = new Center();
         center.setLatitude(lat);
@@ -125,4 +140,27 @@ public class NearbySearchService {
         return req;
     }
 
+    private String[] setRestaurantType(String type) {
+
+        if (type.contains("coffee")) {
+            return includedTypesCoffee;
+        } else if (type.equalsIgnoreCase("indian")) {
+            return includedTypesIndianFood;
+        } else if (type.contains("hamburger")) {
+            return includedTypesHamburger;
+        }
+        // Default types
+        return includedTypesDefault;
+    }
+
+    private String[] setExcludedTypes(String type) {
+
+        if (type.contains("coffee")) {
+            return excludedTypesCoffee;
+        } else if (type.contains("hamburger")) {
+            return excludedTypesHamburger;
+        }
+        // Default types
+        return new String [0];
+    }
 }

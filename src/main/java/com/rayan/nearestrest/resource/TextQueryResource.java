@@ -33,8 +33,9 @@ public class TextQueryResource {
     @Path("/nearbySearch")
     public RestaurantResult getNearbySearch(
             @QueryParam("lat") double lat,
-            @QueryParam("lng") double lng
+            @QueryParam("lng") double lng,
+            @QueryParam("type") String type
     ) {
-        return nearbySearchService.searchRestaurants(lat, lng);
+        return nearbySearchService.searchRestaurants(lat, lng, type);
     }
 }
