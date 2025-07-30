@@ -4,6 +4,7 @@ package com.rayan.nearestrest.core.exception.mapper;
 
 import com.rayan.nearestrest.core.exception.AppServerException;
 import com.rayan.nearestrest.core.exception.GenericException;
+import com.rayan.nearestrest.core.exception.ResultNotFoundException;
 import com.rayan.nearestrest.dto.ErrorMessageDTO;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -33,7 +34,10 @@ public class AppExceptionMapper implements ExceptionMapper<GenericException> {
 
          if (exception instanceof AppServerException) {
             status = Response.Status.SERVICE_UNAVAILABLE;
-        }
+        } else if (exception instanceof ResultNotFoundException) {
+             status = Response.Status.NOT_FOUND;
+         }
+
 
         // Log the exception
         if (status == Response.Status.INTERNAL_SERVER_ERROR) {
