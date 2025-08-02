@@ -51,7 +51,6 @@ public class NearbySearchService {
         }
         List<Place> topFive = getTop10Places(places);
         List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
-        System.out.println(resultDTOs + "=============");
         return new RestaurantResult(resultDTOs);
     }
 
