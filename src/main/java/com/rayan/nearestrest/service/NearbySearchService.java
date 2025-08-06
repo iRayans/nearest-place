@@ -14,7 +14,6 @@ import org.jboss.logging.Logger;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.rayan.nearestrest.core.enumeration.PriceLevel.PRICE_LEVEL_UNKNOWN;
 
@@ -39,25 +38,34 @@ public class NearbySearchService {
 
     public RestaurantResult searchRestaurants(double lat, double lng, String type) {
         LOGGER.info("Searching restaurants for " + type + " at " + lat + ", " + lng);
-        PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
-        PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
-        if (res.getPlaces() == null) {
-            LOGGER.error("Failed to search restaurants for " + type);
-            throw new ResultNotFoundException("No results were returned from Google Places API");
-        }
+        try {
+            PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
+            PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
 
-        List<Place> places;
-        if (type.contains("hamburger")) {
-            places = excludeChainRestaurants(res.getPlaces());
-        } else if (type.contains("coffee")) {
-            places = excludeCoffees(res.getPlaces());
-        } else {
-            places = res.getPlaces();
+            if (res.getPlaces() == null) {
+                LOGGER.error("No places found for " + type);
+                throw new ResultNotFoundException("No results were returned from Google Places API");
+            }
+
+            List<Place> places;
+            if (type.contains("hamburger")) {
+                places = excludeChainRestaurants(res.getPlaces());
+            } else if (type.contains("coffee")) {
+                places = excludeCoffees(res.getPlaces());
+            } else {
+                places = res.getPlaces();
+            }
+
+            List<Place> topFive = getTop10Places(places);
+            List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
+            return new RestaurantResult(resultDTOs);
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to search restaurants: " + e.getMessage(), e);
+            throw new ResultNotFoundException("Failed to retrieve restaurants. Please try again later.");
         }
-        List<Place> topFive = getTop10Places(places);
-        List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
-        return new RestaurantResult(resultDTOs);
     }
+
 
 
     // Helpers methods
