@@ -48,7 +48,7 @@ public class NearbySearchService {
             }
 
             List<Place> places;
-            if (type.contains("hamburger")) {
+            if (type.contains("hamburger") || type.contains("restaurant")) {
                 places = excludeChainRestaurants(res.getPlaces());
             } else if (type.contains("coffee")) {
                 places = excludeCoffees(res.getPlaces());
@@ -105,7 +105,7 @@ public class NearbySearchService {
 
 
     private List<Place> excludeChainRestaurants(List<Place> places) {
-        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King", "Kudu", "Shawarma House", "Hardee's", "Burgerizzr", "وهمي", "Hamburgini");
+        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King", "Kudu", "Shawarma House", "Hardee's", "Burgerizzr", "وهمي", "Hamburgini","Sign");
 
         return places.stream()
                 .filter(place ->
