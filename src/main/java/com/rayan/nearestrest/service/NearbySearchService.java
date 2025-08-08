@@ -1,6 +1,7 @@
 package com.rayan.nearestrest.service;
 
 import com.rayan.nearestrest.clinet.GooglePlacesClientNearbySearch;
+import com.rayan.nearestrest.core.exception.EntityInvalidArgumentsException;
 import com.rayan.nearestrest.core.exception.ResultNotFoundException;
 import com.rayan.nearestrest.dto.*;
 import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
@@ -8,6 +9,7 @@ import com.rayan.nearestrest.dto.request.PlacesNearbySearchRequest;
 import com.rayan.nearestrest.dto.places.Place;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.WebApplicationException;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
@@ -29,6 +31,7 @@ public class NearbySearchService {
     private final String[] excludedTypesHamburger = {"pizza_restaurant", "middle_eastern_restaurant", "seafood_restaurant"};
     private final String[] excludedTypesCoffee = {"tea_house"};
     private final String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
+
     @ConfigProperty(name = "api.key")
     private String apiKey;
 
@@ -42,7 +45,11 @@ public class NearbySearchService {
             PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
             PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
 
+            if (res.getPlaces().isEmpty()) {
+                System.out.println("No places found =============== ");
+            }
             if (res.getPlaces() == null) {
+                System.out.println("response is null =============== ");
                 LOGGER.error("No places found for " + type);
                 throw new ResultNotFoundException("No results were returned from Google Places API");
             }
@@ -60,12 +67,20 @@ public class NearbySearchService {
             List<RestaurantResultDTO> resultDTOs = parseRestaurants(topFive);
             return new RestaurantResult(resultDTOs);
 
+        } catch (WebApplicationException e) {
+            if (e.getResponse().getStatus() == 400) {
+                LOGGER.error("Bad request to Google Places API. Check your request payload or headers.");
+                throw new EntityInvalidArgumentsException("Invalid location coordinates. . Please try again later.");
+            } else {
+                LOGGER.error("Unexpected response from Google Places API: " + e.getMessage(), e);
+                throw new ResultNotFoundException("External service failed. Please try again later.");
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to search restaurants: " + e.getMessage(), e);
             throw new ResultNotFoundException("Failed to retrieve restaurants. Please try again later.");
         }
-    }
 
+    }
 
 
     // Helpers methods
@@ -105,7 +120,7 @@ public class NearbySearchService {
 
 
     private List<Place> excludeChainRestaurants(List<Place> places) {
-        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King", "Kudu", "Shawarma House", "Hardee's", "Burgerizzr", "وهمي", "Hamburgini","Sign");
+        List<String> chainRestaurants = List.of("McDonald", "KFC", "Burger King", "Kudu", "Shawarma House", "Hardee's", "Burgerizzr", "وهمي", "Hamburgini", "Sign");
 
         return places.stream()
                 .filter(place ->

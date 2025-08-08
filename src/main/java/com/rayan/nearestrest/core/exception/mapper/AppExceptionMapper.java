@@ -1,8 +1,8 @@
 package com.rayan.nearestrest.core.exception.mapper;
 
 
-
 import com.rayan.nearestrest.core.exception.AppServerException;
+import com.rayan.nearestrest.core.exception.EntityInvalidArgumentsException;
 import com.rayan.nearestrest.core.exception.GenericException;
 import com.rayan.nearestrest.core.exception.ResultNotFoundException;
 import com.rayan.nearestrest.dto.ErrorMessageDTO;
@@ -32,14 +32,19 @@ public class AppExceptionMapper implements ExceptionMapper<GenericException> {
 
         // Determine the appropriate HTTP status based on exception type
 
-         if (exception instanceof AppServerException) {
+        if (exception instanceof AppServerException) {
             status = Response.Status.SERVICE_UNAVAILABLE;
         } else if (exception instanceof ResultNotFoundException) {
-             status = Response.Status.NOT_FOUND;
-         }
+            status = Response.Status.NOT_FOUND;
+        }
 
 
         // Log the exception
+        if (exception instanceof EntityInvalidArgumentsException) {
+            status = Response.Status.BAD_REQUEST;
+        }
+
+
         if (status == Response.Status.INTERNAL_SERVER_ERROR) {
             LOG.error("Unhandled exception", exception);
         } else {
