@@ -45,15 +45,6 @@ public class NearbySearchService {
             PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
             PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
 
-            if (res.getPlaces().isEmpty()) {
-                System.out.println("No places found =============== ");
-            }
-            if (res.getPlaces() == null) {
-                System.out.println("response is null =============== ");
-                LOGGER.error("No places found for " + type);
-                throw new ResultNotFoundException("No results were returned from Google Places API");
-            }
-
             List<Place> places;
             if (type.contains("hamburger") || type.contains("restaurant")) {
                 places = excludeChainRestaurants(res.getPlaces());
@@ -70,7 +61,7 @@ public class NearbySearchService {
         } catch (WebApplicationException e) {
             if (e.getResponse().getStatus() == 400) {
                 LOGGER.error("Bad request to Google Places API. Check your request payload or headers.");
-                throw new EntityInvalidArgumentsException("Invalid location coordinates. . Please try again later.");
+                throw new EntityInvalidArgumentsException("Invalid location coordinates.Please try again.");
             } else {
                 LOGGER.error("Unexpected response from Google Places API: " + e.getMessage(), e);
                 throw new ResultNotFoundException("External service failed. Please try again later.");
