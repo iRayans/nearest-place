@@ -8,6 +8,7 @@ import com.rayan.nearestrest.dto.*;
 import com.rayan.nearestrest.dto.nearbySearch.LocationRestriction;
 import com.rayan.nearestrest.dto.request.PlacesNearbySearchRequest;
 import com.rayan.nearestrest.dto.places.Place;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -33,8 +34,10 @@ public class NearbySearchService {
     @RestClient
     GooglePlacesClientNearbySearch nearbyPlacesClient;
 
+    @CacheResult(cacheName = "places")
     public RestaurantResult searchRestaurants(double lat, double lng, String type) {
         try {
+            LOGGER.infof("Constructing request for %s at %.4f, %.4f", type, lat, lng);
             PlacesNearbySearchRequest req = constructRequest(lat, lng, type);
             String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
             PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
@@ -67,7 +70,6 @@ public class NearbySearchService {
 
     // Helpers methods
 
-
     // Mapper
     // TODO: Move it to a Mapper class.
     private List<RestaurantResultDTO> parseRestaurants(List<Place> topFive) {
@@ -83,7 +85,6 @@ public class NearbySearchService {
     }
 
     private PlacesNearbySearchRequest constructRequest(double lat, double lng, String type) {
-        LOGGER.info("Constructing request for " + type + " at " + lat + ", " + lng);
         PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
         req.setRankPreference("POPULARITY");
         req.setMaxResultCount(20);
