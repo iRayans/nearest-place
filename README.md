@@ -71,5 +71,5 @@ Run:
 docker run -p 8080:8080 \
   -e API_KEY=YOUR_API_KEY \
   -e FRONTEND_URL=YOUR_URL \
-  irayan68/nearest-restaurants:latest
+  irayan68/nearest-rest:latest
 ```
