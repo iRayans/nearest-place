@@ -11,10 +11,15 @@ public class PlacesHelper {
     private final static String[] includedTypesHamburger = {"hamburger_restaurant", "american_restaurant"};
     private final static String[] includedTypesCoffee = {"coffee_shop", "cafe"};
     private final static String[] includedTypesIndianFood = {"indian_restaurant"};
-    private final static String[] excludedTypesHamburger = {"pizza_restaurant", "middle_eastern_restaurant", "seafood_restaurant"};
+    private final static String[] excludedTypesHamburger = {"pizza_restaurant", "middle_eastern_restaurant"};
     private final static String[] excludedTypesCoffee = {"tea_house"};
+    private final static String[] includedTypesSeaFood = {"seafood_restaurant","sushi_restaurant"};
+    private final static String[] includedTypesSteakHouse = {"steak_house"};
+    private final static String[] includedTypesLebanese = {"lebanese_restaurant"};
+    private final static String[] includedTypesItalian = {"italian_restaurant"};
 
-    // utilty class n
+
+    // utility class.
     private PlacesHelper() {
     }
 
@@ -81,15 +86,16 @@ public class PlacesHelper {
 
 
     public static String[] getIncludedTypes(String type) {
-        if (type.contains("coffee")) {
-            return includedTypesCoffee;
-        } else if (type.equalsIgnoreCase("indian")) {
-            return includedTypesIndianFood;
-        } else if (type.contains("hamburger")) {
-            return includedTypesHamburger;
-        }
-        // Default types
-        return includedTypesDefault;
+        return switch (type) {
+            case "hamburger" -> includedTypesHamburger;
+            case "coffee" -> includedTypesCoffee;
+            case "indian" -> includedTypesIndianFood;
+            case "seafood" -> includedTypesSeaFood;
+            case "steakhouse" -> includedTypesSteakHouse;
+            case "italian" -> includedTypesItalian;
+            case "lebanese" -> includedTypesLebanese;
+            default -> includedTypesDefault;
+        };
     }
 
     public static String[] getExcludedTypes(String type) {

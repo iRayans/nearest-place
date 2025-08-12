@@ -28,7 +28,7 @@ public class NearbySearchService {
     private static final Logger LOGGER = Logger.getLogger(NearbySearchService.class);
 
     @ConfigProperty(name = "api.key")
-    private String apiKey;
+    String apiKey;
 
     @Inject
     @RestClient
@@ -85,6 +85,7 @@ public class NearbySearchService {
     }
 
     private PlacesNearbySearchRequest constructRequest(double lat, double lng, String type) {
+        LOGGER.info("construct the Request...");
         PlacesNearbySearchRequest req = new PlacesNearbySearchRequest();
         req.setRankPreference("POPULARITY");
         req.setMaxResultCount(20);
@@ -94,7 +95,7 @@ public class NearbySearchService {
             type = "restaurant";
         }
         req.setIncludedTypes(getIncludedTypes(type));
-        if (!type.equals("restaurant")) {
+        if (type.equals("hamburger")) {
             req.setExcludedTypes(PlacesHelper.getExcludedTypes(type));
         }
         // location
