@@ -1,7 +1,7 @@
 ## Nearest-Place Project 
 
-##### A Java + Quarkus API that searches for nearby restaurants, coffee shops, and other places using the Google Places API.
-It adds custom filtering and ranking, for example removing chain restaurants and showing the top-rated results.
+#### A Java + Quarkus API that searches nearby restaurants, coffee shops, and other places using the Google Places API. 
+#### It adds simple filtering and ranking (e.g., removes chain restaurants and highlights top-rated results). Searches use a 5,000 m radius (5 km).
 
 ## Purpose
 I wanted an easy way to find good nearby places, but also filter out certain types (like chain restaurants) and sort them in a more useful way.
