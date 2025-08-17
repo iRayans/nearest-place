@@ -42,11 +42,12 @@ public class NearbySearchService {
             String fieldMask = "places.displayName,places.rating,places.userRatingCount,places.priceLevel,places.formattedAddress,places.types,places.googleMapsUri,places.priceLevel";
             PlacesTextSearchResponse res = nearbyPlacesClient.searchPlaces(req, apiKey, fieldMask);
 
+
             List<Place> places = res.getPlaces() == null ? List.of() : res.getPlaces();
             if (type.contains("hamburger") || type.contains("restaurant")) {
-                places = excludeChainRestaurants(res.getPlaces());
+                places = excludeChainRestaurants(places);
             } else if (type.contains("coffee")) {
-                places = excludeCoffees(res.getPlaces());
+                places = excludeCoffees(places);
             }
 
             List<Place> top10Places = PlacesHelper.getTop10Places(places);
