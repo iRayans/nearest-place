@@ -1,11 +1,9 @@
 name: Docker Image CI
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -13,7 +11,29 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-
+
+      # Build fast-jar -> creates target/quarkus-app/**
+      - name: Build with Maven
+        run: mvn -B -DskipTests package
+
+      # Optional: sanity check artifacts exist
+      - name: Show produced artifacts
+        run: ls -la target/quarkus-app || true
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -25,7 +45,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (Dockerfile.jvm)
         uses: docker/build-push-action@v5
         with:
           context: .

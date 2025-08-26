@@ -1,5 +1,3 @@
-*
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+# .dockerignore
+# don't exclude the built app
+!target/quarkus-app/**
